@@ -123,6 +123,4 @@
 
 	<bean id="checkDeliveryDateAction" class="com.epam.hytc.fulfilmentprocess.actions.consignment.CheckDeliveryDateAction"/>
 
-	<bean id="sendEmailToInactiveCustomersJob" class="com.epam.hytc.fulfilmentprocess.jobs.SendEmailToInactiveCustomersJob" parent="abstractJobPerformable" />
-
 </beans>

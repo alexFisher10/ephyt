@@ -133,8 +133,6 @@
 		<property name="priceDataFactory" ref="priceDataFactory"/>
 	</bean>
 
-	<bean id="returningCustomerEmailContext" class="com.epam.hytc.facades.process.email.context.ReturningCustomerEmailContext" parent="abstractEmailContext" scope="prototype" />
-
 	<alias name="yacceleratorSearchPagePointOfServiceDistancePopulator" alias="searchPagePointOfServiceDistancePopulator" />
 	<bean id="yacceleratorSearchPagePointOfServiceDistancePopulator" class="com.epam.hytc.facades.storefinder.populators.SearchPagePointOfServiceDistancePopulator" >
 		<property name="pointOfServiceDistanceConverter" ref="pointOfServiceDistanceConverter"/>
@@ -213,10 +211,5 @@
 
 	<alias name="defaultHytcCheckoutFacade" alias="hytcCheckoutFacade"/>
 	<bean id="defaultHytcCheckoutFacade" class="com.epam.hytc.facades.cart.impl.DefaultHytcCheckoutFacade" parent="defaultCheckoutFacade"/>
-
-    <bean id="generateEmailToInactiveCustomersAction" class="de.hybris.platform.acceleratorservices.process.email.actions.GenerateEmailAction" parent="abstractGenerateEmailAction" >
-        <property name="frontendTemplateName" value="CustomerSendTokenTemplate"/>
-    </bean>
-
 </beans>
 

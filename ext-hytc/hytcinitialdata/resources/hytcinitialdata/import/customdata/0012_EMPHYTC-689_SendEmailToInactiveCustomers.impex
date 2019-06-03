@@ -1,0 +1,28 @@
+INSERT_UPDATE DynamicProcessDefinition; code[unique = true]                ; active[unique = true]; content;
+                                      ; ReturningCustomerSendEmailsProcess ; true                 ; "<process xmlns='http://www.hybris.de/xsd/processdefinition'
+                                      processClass='com.epam.hytc.core.model.ReturningCustomerSendEmailsProcessModel'
+                                      start='generateEmail'
+                                      name='ReturningCustomerSendEmailsProcess'
+                                      onError='error'>
+
+	<action id='generateEmail' bean='generateEmailToInactiveCustomersAction'>
+		<transition name='OK' to='sendEmail'/>
+		<transition name='NOK' to='error'/>
+	</action>
+
+		<action id='sendEmail' bean='sendEmail'>
+		<transition name='OK' to='removeSentEmail'/>
+		<transition name='NOK' to='failed'/>
+	</action>
+
+	<action id='removeSentEmail' bean='removeSentEmail'>
+		<transition name='OK' to='success'/>
+		<transition name='NOK' to='error'/>
+	</action>
+
+	<end id='error' state='ERROR'>Something went wrong.</end>
+	<end id='failed' state='FAILED'>Could not send email to inactive customer.</end>
+	<end id='success' state='SUCCEEDED'>Send Email To Inactive Customers Process completed.</end>
+
+</process>"
+

@@ -1,0 +1,11 @@
+INSERT_UPDATE ServicelayerJob; code[unique = true]             ; springId[unique = true]
+                             ; sendEmailToInactiveCustomersJob ; sendEmailToInactiveCustomersJob
+
+INSERT_UPDATE CronJob; code[unique = true]             ; job(code)                       ; sessionLanguage(isoCode)[default = en]
+                     ; sendEmailToInactiveCustomersJob ; sendEmailToInactiveCustomersJob ;
+
+INSERT_UPDATE Trigger; cronJob(code)[unique = true]    ; cronExpression
+                     ; sendEmailToInactiveCustomersJob ; 0 0 9 1/1 * ? *
+
+INSERT_UPDATE HytcConfiguration; code[unique = true]              ; value;
+                               ; customer.inactive.days.threshold ; 30   ;

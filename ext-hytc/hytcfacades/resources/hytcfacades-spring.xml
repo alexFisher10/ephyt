@@ -1,0 +1,222 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ [y] hybris Platform
+
+ Copyright (c) 2018 SAP SE or an SAP affiliate company.  All rights reserved.
+
+ This software is the confidential and proprietary information of SAP
+ ("Confidential Information"). You shall not disclose such Confidential
+ Information and shall use it only in accordance with the terms of the
+ license agreement you entered into with SAP.
+-->
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+		http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context.xsd">
+
+	<context:annotation-config/>
+
+	<alias alias="simpleSuggestionFacade" name="defaultSimpleSuggestionFacade"/>
+	<bean id="defaultSimpleSuggestionFacade" class="com.epam.hytc.facades.suggestion.impl.DefaultSimpleSuggestionFacade" >
+		<property name="simpleSuggestionService" ref="simpleSuggestionService"/>
+		<property name="userService" ref="userService"/>
+		<property name="categoryService" ref="categoryService"/>
+		<property name="productService" ref="productService"/>
+		<property name="productConverter" ref="carouselProductConverter"/>
+		<property name="cartService" ref="cartService"/>
+	</bean>
+
+	<bean id="carouselProductConverter" parent="defaultProductConverter">
+		<property name="populators">
+			<list merge="true">
+				<ref bean="productPricePopulator"/>
+			</list>
+		</property>
+	</bean>
+
+	<!-- accelerator Image Format Mappings -->
+	<alias name="acceleratorImageFormatMapping" alias="imageFormatMapping"/>
+	<bean id="acceleratorImageFormatMapping" parent="defaultImageFormatMapping">
+		<property name="mapping">
+			<map>
+				<entry key="superZoom" value="1200Wx1200H"/>
+				<entry key="zoom" value="515Wx515H"/>
+				<entry key="store" value="365Wx246H"/>
+				<entry key="product" value="300Wx300H"/>
+				<entry key="thumbnail" value="96Wx96H"/>
+				<entry key="cartIcon" value="65Wx65H"/>
+				<entry key="styleSwatch" value="30Wx30H"/>
+			</map>
+		</property>
+	</bean>
+
+	<alias name="acceleratorProductPrimaryImagePopulator" alias="productPrimaryImagePopulator" />
+	<bean id="acceleratorProductPrimaryImagePopulator" parent="defaultProductPrimaryImagePopulator">
+		<property name="imageFormats">
+			<list>
+				<value>zoom</value>
+				<value>product</value>
+				<value>thumbnail</value>
+				<value>cartIcon</value>
+			</list>
+		</property>
+	</bean>
+
+	<alias name="acceleratorProductGalleryImagesPopulator" alias="productGalleryImagesPopulator" />
+	<bean id="acceleratorProductGalleryImagesPopulator" parent="defaultProductGalleryImagesPopulator">
+		<property name="imageFormats">
+			<list>
+				<value>superZoom</value>
+				<value>zoom</value>
+				<value>product</value>
+				<value>thumbnail</value>
+			</list>
+		</property>
+	</bean>
+
+	<bean id="customerEmailContext" class="com.epam.hytc.facades.process.email.context.CustomerEmailContext" parent="abstractEmailContext" scope="prototype" >
+		<property name="customerConverter" ref="customerConverter"/>
+	</bean>
+
+	<bean id="forgottenPasswordEmailContext" class="com.epam.hytc.facades.process.email.context.ForgottenPasswordEmailContext" parent="customerEmailContext" scope="prototype" >
+		<property name="customerConverter" ref="customerConverter"/>
+	</bean>
+
+	<bean id="orderNotificationEmailContext" class="com.epam.hytc.facades.process.email.context.OrderNotificationEmailContext" parent="abstractEmailContext" scope="prototype" >
+		<property name="orderConverter" ref="orderConverter"/>
+	</bean>
+
+	<bean id="quoteNotificationEmailContext" class="com.epam.hytc.facades.process.email.context.QuoteNotificationEmailContext" parent="abstractEmailContext" scope="prototype" >
+		<property name="quoteService" ref="quoteService"/>
+		<property name="quoteConverter" ref="quoteConverter"/>
+	</bean>
+
+	<bean id="deliverySentEmailContext" class="com.epam.hytc.facades.process.email.context.DeliverySentEmailContext" parent="abstractEmailContext" scope="prototype" >
+		<property name="consignmentConverter" ref="consignmentConverter"/>
+	</bean>
+
+	<bean id="readyForPickupEmailContext" class="com.epam.hytc.facades.process.email.context.ReadyForPickupEmailContext" parent="abstractEmailContext" scope="prototype" >
+		<property name="consignmentConverter" ref="consignmentConverter"/>
+	</bean>
+
+	<bean id="orderCancelledEmailContext" class="com.epam.hytc.facades.process.email.context.OrderCancelledEmailContext" parent="abstractEmailContext" scope="prototype" >
+		<property name="orderConverter" ref="orderConverter"/>
+	</bean>
+
+	<bean id="orderRefundEmailContext" class="com.epam.hytc.facades.process.email.context.OrderRefundEmailContext" parent="abstractEmailContext" scope="prototype" >
+		<property name="orderConverter" ref="orderConverter"/>
+	</bean>
+	<bean id="consignmentCollectionReminderEmailContext" class="com.epam.hytc.facades.process.email.context.ConsignmentCollectionReminderEmailContext" parent="abstractEmailContext" scope="prototype">
+        <property name="consignmentConverter" ref="consignmentConverter"/>
+        <property name="formatFactory" ref="formatFactory"/>
+        <property name="customerServiceUncollectedConsignmentStrategy" ref="customerServiceUncollectedConsignmentStrategy" />
+        <property name="orderConverter" ref="orderConverter"/>
+    </bean>
+
+	<bean id="orderPartiallyModifiedEmailContext" class="com.epam.hytc.facades.process.email.context.OrderPartiallyModifiedEmailContext" parent="abstractEmailContext" scope="prototype" >
+		<property name="orderConverter" ref="orderConverter"/>
+		<property name="orderEntryConverter" ref="orderEntryConverter"/>
+		<property name="priceDataFactory" ref="priceDataFactory"/>
+	</bean>
+
+	<bean id="orderPartiallyCanceledEmailContext" class="com.epam.hytc.facades.process.email.context.OrderPartiallyCanceledEmailContext" parent="orderPartiallyModifiedEmailContext" scope="prototype" >
+	</bean>
+
+	<bean id="orderPartiallyRefundedEmailContext" class="com.epam.hytc.facades.process.email.context.OrderPartiallyRefundedEmailContext" parent="orderPartiallyModifiedEmailContext" scope="prototype" >
+	</bean>
+
+	<bean id="notPickedUpConsignmentCanceledEmailContext" class="com.epam.hytc.facades.process.email.context.NotPickedUpConsignmentCanceledEmailContext" parent="abstractEmailContext" scope="prototype" >
+		<property name="consignmentConverter" ref="consignmentConverter"/>
+		<property name="priceDataFactory" ref="priceDataFactory"/>
+	</bean>
+
+	<bean id="returningCustomerEmailContext" class="com.epam.hytc.facades.process.email.context.ReturningCustomerEmailContext" parent="abstractEmailContext" scope="prototype" />
+
+	<alias name="yacceleratorSearchPagePointOfServiceDistancePopulator" alias="searchPagePointOfServiceDistancePopulator" />
+	<bean id="yacceleratorSearchPagePointOfServiceDistancePopulator" class="com.epam.hytc.facades.storefinder.populators.SearchPagePointOfServiceDistancePopulator" >
+		<property name="pointOfServiceDistanceConverter" ref="pointOfServiceDistanceConverter"/>
+	</bean>
+
+    <!-- Bonus system implementation START-->
+    <alias name="hytcDefaultCustomerFacade" alias="customerFacade"/>
+    <bean id="hytcDefaultCustomerFacade" class="com.epam.hytc.facades.bonuses.impl.HytcDefaultCustomerFacade" parent="defaultCustomerFacade"/>
+
+	<alias name="defaultBonusHistoryFacade" alias="bonusHistoryFacade"/>
+	<bean id="defaultBonusHistoryFacade" class="com.epam.hytc.facades.bonuses.impl.DefaultBonusHistoryFacade"/>
+
+    <bean id="customerBonusHistoryDataConverter" parent="abstractPopulatingConverter">
+        <property name="targetClass" value="de.hybris.platform.core.servicelayer.data.SearchPageData"/>
+        <property name="populators">
+            <list>
+                <ref bean="bonusHistoryDataPopulator"/>
+            </list>
+        </property>
+    </bean>
+
+    <alias name="defaultBonusHistoryDataPopulator" alias="bonusHistoryDataPopulator"/>
+    <bean id="defaultBonusHistoryDataPopulator" class="com.epam.hytc.facades.converters.populators.BonusHistoryDataPopulator"/>
+
+    <alias name="defaultOrderBonusDataPopulator" alias="orderBonusDataPopulator"/>
+    <bean id="defaultOrderBonusDataPopulator" class="com.epam.hytc.facades.converters.populators.OrderBonusPopulator"/>
+
+	<bean parent="modifyPopulatorList">
+		<property name="list" ref="orderConverter"/>
+		<property name="add" ref="orderBonusDataPopulator"/>
+	</bean>
+
+	<alias name="defaultCustomerConverter" alias="customerConverter"/>
+	<bean id="defaultCustomerConverter" parent="abstractPopulatingConverter">
+		<property name="targetClass" value="de.hybris.platform.commercefacades.user.data.CustomerData"/>
+		<property name="populators">
+			<list>
+				<ref bean="customerPopulator"/>
+				<ref bean="customerBonusAmountPopulator"/>
+			</list>
+		</property>
+	</bean>
+
+    <alias name="defaultCustomerBonusAmountPopulator" alias="customerBonusAmountPopulator"/>
+    <bean id="defaultCustomerBonusAmountPopulator"
+          class="com.epam.hytc.facades.converters.populators.CustomerBonusAmountPopulator"/>
+    <!-- Bonus system implementation END-->
+
+	<alias name="defaultRecentProductFacade" alias="recentProductFacade"/>
+	<bean id="defaultRecentProductFacade" class="com.epam.hytc.facades.product.impl.DefaultRecentProductFacade" />
+
+	<bean id="recentProductConverter" parent="abstractPopulatingConverter">
+		<property name="targetClass" value="de.hybris.platform.commercefacades.product.data.ProductData"/>
+		<property name="populators">
+			<list>
+				<ref bean="recentProductPopulator"/>
+			</list>
+		</property>
+	</bean>
+
+	<alias name="defaultRecentProductPopulator" alias="recentProductPopulator"/>
+	<bean id="defaultRecentProductPopulator" class="com.epam.hytc.facades.converters.populators.RecentProductPopulator"/>
+
+	<alias name="hytcDefaultCartPopulator" alias="hytcCartPopulator"/>
+	<bean id="hytcDefaultCartPopulator" class="com.epam.hytc.facades.converters.populators.HytcDefaultCartPopulator"/>
+
+	<bean parent="modifyPopulatorList">
+		<property name="list" ref="cartConverter"/>
+		<property name="add" ref="hytcCartPopulator"/>
+	</bean>
+
+	<alias name="hytcBonusesCartFacade" alias="bonusesCartFacade"/>
+	<bean id="hytcBonusesCartFacade" class="com.epam.hytc.facades.cart.impl.HytcBonusesCartFacade" parent="defaultCartFacade"/>
+
+	<bean id="returningCustomerTokenFacade" class="com.epam.hytc.facades.token.impl.DefaultReturningCustomerTokenFacade"/>
+
+	<alias name="defaultHytcCheckoutFacade" alias="hytcCheckoutFacade"/>
+	<bean id="defaultHytcCheckoutFacade" class="com.epam.hytc.facades.cart.impl.DefaultHytcCheckoutFacade" parent="defaultCheckoutFacade"/>
+
+    <bean id="generateEmailToInactiveCustomersAction" class="de.hybris.platform.acceleratorservices.process.email.actions.GenerateEmailAction" parent="abstractGenerateEmailAction" >
+        <property name="frontendTemplateName" value="CustomerSendTokenTemplate"/>
+    </bean>
+
+</beans>
+

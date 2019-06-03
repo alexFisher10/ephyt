@@ -1,0 +1,32 @@
+$lang = en
+$contentCatalog = electronicsContentCatalog
+$contentCV = catalogVersion(CatalogVersion.catalog(Catalog.id[default=$contentCatalog]), CatalogVersion.version[default=Online])[default=$contentCatalog:Online]
+$wideContent=CMSImageComponent,BannerComponent
+
+UPDATE GenericItem[processor = de.hybris.platform.commerceservices.impex.impl.ConfigPropertyImportProcessor]; pk[unique = true]
+$emailResource = $config-emailResourceValue
+$emailPackageName = $config-emailContextPackageName
+
+INSERT_UPDATE RendererTemplate; code[unique = true]                           ; description[lang = $lang]     ; templateScript[lang = $lang, translator = de.hybris.platform.commerceservices.impex.impl.FileLoaderValueTranslator]; contextClass                           ; rendererType(code)[default = 'velocity']
+                              ; electronics_Email_Customer_Send_Token_Body    ; "Customer Send Token Body"    ; $emailResource/email-customerSendTokenBody.vm                                                                      ; $emailPackageName.ReturningCustomerEmailContext ;
+                              ; electronics_Email_Customer_Send_Token_Subject ; "Customer Send Token Subject" ; $emailResource/email-customerSendTokenSubject.vm                                                                   ; $emailPackageName.ReturningCustomerEmailContext ;
+
+INSERT_UPDATE EmailPageTemplate; $contentCV[unique = true]; uid[unique = true]        ; name                         ; active; frontendTemplateName; subject(code)                                 ; htmlTemplate(code)                         ; restrictedPageTypes(code)
+                               ;                          ; CustomerSendTokenTemplate ; Customer Send Token Template ; true  ; customerSendToken   ; electronics_Email_Customer_Send_Token_Subject ; electronics_Email_Customer_Send_Token_Body ; EmailPage
+
+INSERT_UPDATE EmailPage; $contentCV[unique = true]; uid[unique = true]; name                ; masterTemplate(uid, $contentCV); defaultPage; approvalStatus(code)[default = 'approved']
+                       ;                          ; customerSendToken ; customer Send Token ; CustomerSendTokenTemplate      ; true       ;
+
+INSERT_UPDATE ContentSlotName;name[unique=true];template(uid,$contentCV)[unique=true][default='CustomerSendTokenTemplate'];validComponentTypes(code)
+                             ;SiteLogo;;;logo
+                             ;TopContent;;$wideContent;
+                             ;BottomContent;;$wideContent;
+
+INSERT_UPDATE ContentSlotForTemplate;$contentCV[unique=true];uid[unique=true];position[unique=true];pageTemplate(uid,$contentCV)[unique=true][default='CustomerSendTokenTemplate'];contentSlot(uid,$contentCV)[unique=true];allowOverwrite
+                                    ;;SiteLogo-CustomerSendTokenTemplate;SiteLogo;;EmailSiteLogoSlot;true
+                                    ;;TopContent-CustomerSendTokenTemplate;TopContent;;EmailTopSlot;true
+                                    ;;BottomContent-CustomerSendTokenTemplate;BottomContent;;EmailBottomSlot;true
+
+
+
+

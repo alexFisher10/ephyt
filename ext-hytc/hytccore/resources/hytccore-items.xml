@@ -1,0 +1,327 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!--
+ [y] hybris Platform
+
+ Copyright (c) 2018 SAP SE or an SAP affiliate company.  All rights reserved.
+
+ This software is the confidential and proprietary information of SAP
+ ("Confidential Information"). You shall not disclose such Confidential
+ Information and shall use it only in accordance with the terms of the
+ license agreement you entered into with SAP.
+-->
+<items xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="items.xsd">
+
+    <enumtypes>
+
+        <enumtype code="BonusHistoryOperationType">
+            <value code="INCOMING"/>
+            <value code="OUTGOING"/>
+        </enumtype>
+
+        <enumtype code="ReleaseImpexStatus">
+            <value code="FAILURE"/>
+            <value code="SUCCESS"/>
+        </enumtype>
+
+    </enumtypes>
+
+    <relations>
+
+        <relation code="BonusAccount2BonusHistoryEntries" localized="false">
+            <sourceElement type="BonusAccount" qualifier="bonusAccount" cardinality="one">
+                <modifiers read="true" write="true" search="true" optional="false"/>
+            </sourceElement>
+            <targetElement type="BonusHistoryEntry" qualifier="bonusHistoryEntries" cardinality="many"
+                           collectiontype="set">
+                <modifiers read="true" write="true" search="true" optional="true"/>
+            </targetElement>
+        </relation>
+
+    </relations>
+
+    <itemtypes>
+
+        <!-- Add your item definitions here -->
+        <itemtype code="Customer" autocreate="false" generate="false">
+            <attributes>
+                <attribute qualifier="bonusAccount" type="BonusAccount">
+                    <modifiers read="true" write="true" search="true" optional="true" partof="true"/>
+                    <persistence type="property"/>
+                </attribute>
+            </attributes>
+        </itemtype>
+        <itemtype code="AbstractOrder" generate="false" autocreate="false">
+            <attributes>
+                <attribute qualifier="bonuses" type="java.lang.Double" autocreate="true" generate="true">
+                    <persistence type="property"/>
+                    <modifiers read="true" write="true" search="true" optional="false" />
+                    <defaultvalue>Double.valueOf(0.0d)</defaultvalue>
+                </attribute>
+                <attribute qualifier="bonusPaid" type="double" autocreate="true" generate="true">
+                    <persistence type="property"/>
+                    <modifiers read="true" write="true" search="true" optional="true" />
+                </attribute>
+               <attribute qualifier="deliveryDate" type="java.util.Date" >
+                    <persistence type="property"/>
+                    <modifiers read="true" write="true" search="true"/>
+                </attribute>
+            </attributes>
+        </itemtype>
+        <itemtype code="ReleaseImpex" generate="true" autocreate="true">
+            <deployment table="ReleaseImpexes" typecode="11113"/>
+            <attributes>
+                <attribute qualifier="impexId" type="java.lang.String" autocreate="true" generate="true">
+                    <persistence type="property"/>
+                    <modifiers read="true" write="true" search="true" optional="true"/>
+                </attribute>
+                <attribute qualifier="ticketNumber" type="java.lang.String" autocreate="true" generate="true">
+                    <persistence type="property"/>
+                    <modifiers read="true" write="true" search="true" optional="true"/>
+                </attribute>
+                <attribute qualifier="description" type="java.lang.String" autocreate="true" generate="true">
+                    <persistence type="property"/>
+                    <modifiers read="true" write="true" search="true" optional="true"/>
+                </attribute>
+                <attribute qualifier="status" type="ReleaseImpexStatus" generate="true" autocreate="true">
+                    <persistence type="property"/>
+                    <modifiers read="true" write="true" search="true" optional="true"/>
+                </attribute>
+                <attribute qualifier="fileName" type="java.lang.String" autocreate="true" generate="true">
+                    <persistence type="property"/>
+                    <modifiers read="true" write="true" search="false" optional="true"/>
+                </attribute>
+            </attributes>
+        </itemtype>
+        <itemtype code="HytcConfiguration">
+            <deployment table="HytcConfiguration" typecode="12302"/>
+            <attributes>
+                <attribute qualifier="code" type="java.lang.String" autocreate="true" generate="true" >
+                    <persistence type="property"/>
+                    <modifiers read="true" write="true" search="true" unique="true" optional="false"/>
+                </attribute>
+                <attribute qualifier="value" type="java.lang.String" autocreate="true" generate="true">
+                    <persistence type="property"/>
+                    <modifiers read="true" write="true" search="true"/>
+                </attribute>
+            </attributes>
+        </itemtype>
+        <!-- TypeGroups are for structure of this file only -->
+        <typegroup name="Electronics">
+            <itemtype code="ElectronicsColorVariantProduct" extends="VariantProduct"
+                      autocreate="true" generate="true"
+                      jaloclass="com.epam.hytc.core.jalo.ElectronicsColorVariantProduct">
+                <description>Electronics color variant type that contains additional attribute describing variant color.
+                </description>
+                <attributes>
+                    <attribute qualifier="color" type="localized:java.lang.String"
+                               metatype="VariantAttributeDescriptor">
+                        <description>Color of the product.</description>
+                        <modifiers/>
+                        <persistence type="property"/>
+                    </attribute>
+                </attributes>
+            </itemtype>
+        </typegroup>
+
+        <typegroup name="Bonus system">
+
+            <itemtype code="BonusAccount" autocreate="true" generate="true">
+                <description>Bonus system which allows customer to partially pay order</description>
+                <deployment table="BonusAccount" typecode="11111"/>
+                <attributes>
+                    <attribute qualifier="amount" type="double" autocreate="true" generate="true">
+                        <description>Amount of Customer bonus</description>
+                        <persistence type="property"/>
+                        <modifiers read="true" write="true" search="true" optional="false"/>
+                        <defaultvalue>Double.valueOf(0.0d)</defaultvalue>
+                    </attribute>
+                </attributes>
+            </itemtype>
+
+            <itemtype code="BonusHistoryEntry" autocreate="true" generate="true">
+                <description>History of operations with Bonus Account</description>
+                <deployment table="BonusHistoryEntries" typecode="11112"/>
+                <attributes>
+                    <attribute qualifier="type" type="BonusHistoryOperationType" autocreate="true" generate="true">
+                        <modifiers read="true" write="false" search="true" optional="false" initial="true"/>
+                        <persistence type="property"/>
+                    </attribute>
+                    <attribute qualifier="date" type="java.util.Date" autocreate="true" generate="true">
+                        <description>Date of operation with bonus</description>
+                        <persistence type="property"/>
+                        <modifiers read="true" write="false" search="true" optional="false" initial="true"/>
+                    </attribute>
+                    <attribute qualifier="amount" type="double" autocreate="true" generate="true">
+                        <description>Amount of operation with bonus</description>
+                        <persistence type="property"/>
+                        <modifiers read="true" write="false" search="true" optional="false" initial="true"/>
+                    </attribute>
+                    <attribute qualifier="orderCode" type="java.lang.String" autocreate="true" generate="true">
+                        <description>Order code those had paid with bonuses</description>
+                        <persistence type="property"/>
+                        <modifiers read="true" write="true" search="true" optional="true"/>
+                    </attribute>
+                    <attribute qualifier="saved" type="boolean" autocreate="true" generate="true">
+                        <persistence type="property"/>
+                        <description>Flag that set in TRUE when item firstly saved for correct calculate bonus account amount</description>
+                        <modifiers read="true" write="false" search="true" optional="true" initial="true"/>
+                        <defaultvalue>Boolean.FALSE</defaultvalue>
+                    </attribute>
+                </attributes>
+            </itemtype>
+
+            <itemtype code="ReturningCustomerSendEmailsProcess" autocreate="true" generate="true" extends="StoreFrontCustomerProcess"/>
+
+            <itemtype code="MiniBonusComponent" autocreate="true" generate="true"
+                      extends="SimpleCMSComponent"
+                      jaloclass="com.epam.hytc.core.jalo.MiniBonusComponent">
+            </itemtype>
+            <!-- *** ORDER PROMOTIONS *** -->
+            <itemtype code="OrderAddBonusesPromotion"
+                      extends="OrderPromotion"
+                      jaloclass="com.epam.hytc.core.jalo.OrderAddBonusesPromotion"
+                      autocreate="true"
+                      generate="true">
+                <attributes>
+
+                    <attribute
+                            qualifier="percentageOfBonuses"
+                            autocreate="true"
+                            type="java.lang.Double">
+                        <defaultvalue>Double.valueOf(10.0D)</defaultvalue>
+                        <modifiers read="true" write="true" search="true" optional="true"/>
+                        <persistence type="property"/>
+                    </attribute>
+
+                    <attribute qualifier="messageFired" type="localized:java.lang.String">
+                        <modifiers read="true" write="true" optional="true" />
+                        <persistence type="property">
+                            <columntype>
+                                <value>HYBRIS.LONG_STRING</value>
+                            </columntype>
+                        </persistence>
+                    </attribute>
+
+                    <attribute qualifier="messageCouldHaveFired" type="localized:java.lang.String">
+                        <modifiers read="true" write="true" optional="true" />
+                        <persistence type="property">
+                            <columntype>
+                                <value>HYBRIS.LONG_STRING</value>
+                            </columntype>
+                        </persistence>
+                    </attribute>
+
+                </attributes>
+            </itemtype>
+
+            <itemtype code="OrderPayBonusesPromotion"
+                      extends="OrderPromotion"
+                      jaloclass="com.epam.hytc.core.jalo.OrderPayBonusesPromotion"
+                      autocreate="true"
+                      generate="true">
+                <attributes>
+
+                    <attribute qualifier="messageFired" type="localized:java.lang.String">
+                        <modifiers read="true" write="true" optional="true" />
+                        <persistence type="property">
+                            <columntype>
+                                <value>HYBRIS.LONG_STRING</value>
+                            </columntype>
+                        </persistence>
+                    </attribute>
+
+                    <attribute qualifier="messageCouldHaveFired" type="localized:java.lang.String">
+                        <modifiers read="true" write="true" optional="true" />
+                        <persistence type="property">
+                            <columntype>
+                                <value>HYBRIS.LONG_STRING</value>
+                            </columntype>
+                        </persistence>
+                    </attribute>
+
+                </attributes>
+            </itemtype>
+
+            <!-- *** PROMOTION GROUP *** -->
+
+        </typegroup>
+
+        <typegroup name="RecentlyViewedProducts">
+
+            <itemtype code="RecentlyViewedProductsComponent" jaloclass="com.epam.hytc.core.jalo.RecentlyViewedProductsComponent" extends="SimpleCMSComponent">
+                <attributes>
+                    <attribute type="localized:java.lang.String" qualifier="title">
+                        <modifiers read="true" write="true"/>
+                        <model>
+                            <getter name="title" default="true">
+                                <nullDecorator>String.valueOf("Recently viewed")</nullDecorator>
+                            </getter>
+                        </model>
+                        <persistence type="property"/>
+                    </attribute>
+                </attributes>
+            </itemtype>
+
+            <itemtype code="RecentProduct" jaloclass="com.epam.hytc.core.jalo.RecentProduct">
+                <deployment table="RecentProducts" typecode="12301"/>
+                <attributes>
+                    <attribute qualifier="productCode" type="java.lang.String">
+                        <persistence type="property"/>
+                        <modifiers read="true" write="true" search="true"/>
+                    </attribute>
+                    <attribute qualifier="viewDate" type="java.util.Date">
+                        <persistence type="property"/>
+                        <modifiers read="true" write="true" search="true"/>
+                    </attribute>
+                    <attribute qualifier="customer" type="Customer">
+                        <modifiers write="true" read="true" unique="false" />
+                        <persistence type="property"/>
+                    </attribute>
+                </attributes>
+            </itemtype>
+
+        </typegroup>
+
+        <typegroup name="KeywordProductBanner">
+            <itemtype code="KeywordProductBannerComponent"
+                      jaloclass="com.epam.hytc.core.jalo.KeywordProductBannerComponent" extends="SimpleBannerComponent"
+                      autocreate="true" generate="true">
+                <attributes>
+                    <attribute qualifier="keyword" type="java.lang.String">
+                        <modifiers read="true" write="true"/>
+                        <persistence type="property"/>
+                    </attribute>
+                </attributes>
+            </itemtype>
+        </typegroup>
+
+        <typegroup name="AdditionalCustomerInfo">
+            <itemtype code="ReturningCustomerToken" autocreate="true" generate="true">
+                <deployment table="ReturningCustomerTokens" typecode="10300"/>
+                <attributes>
+                    <attribute qualifier="code" type="java.lang.String">
+                        <persistence type="property"/>
+                        <modifiers read="true" write="true" optional="false" unique="true"/>
+                    </attribute>
+                    <attribute qualifier="customer" type="Customer">
+                        <persistence type="property"/>
+                        <modifiers read="true" write="true" optional="false"  unique="true"/>
+                    </attribute>
+                    <attribute qualifier="bonusAmount" type="int">
+                        <persistence type="property"/>
+                        <modifiers read="true" write="true"/>
+                    </attribute>
+                    <attribute qualifier="expirationDate" type="java.util.Date">
+                        <persistence type="property"/>
+                        <modifiers read="true" write="true"/>
+                    </attribute>
+                    <attribute qualifier="active" type="boolean">
+                        <persistence type="property"/>
+                        <modifiers read="true" write="true"/>
+                        <defaultvalue>Boolean.FALSE</defaultvalue>
+                    </attribute>
+                </attributes>
+            </itemtype>
+        </typegroup>
+    </itemtypes>
+</items>

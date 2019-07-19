@@ -1,0 +1,554 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ [y] hybris Platform
+
+ Copyright (c) 2018 SAP SE or an SAP affiliate company.  All rights reserved.
+
+ This software is the confidential and proprietary information of SAP
+ ("Confidential Information"). You shall not disclose such Confidential
+ Information and shall use it only in accordance with the terms of the
+ license agreement you entered into with SAP.
+-->
+<beans xmlns="http://www.springframework.org/schema/beans"
+	   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	   xmlns:context="http://www.springframework.org/schema/context"
+	   xmlns:util="http://www.springframework.org/schema/util"
+	   xsi:schemaLocation="http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/context
+           http://www.springframework.org/schema/context/spring-context.xsd http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
+
+     <context:annotation-config/>
+
+	<!-- Spring Integration -->
+	<import resource="classpath:/hytccore/integration/hot-folder-store-electronics-spring.xml"/>
+	<import resource="classpath:/hytccore/integration/hot-folder-common-spring.xml"/>
+
+	<!-- SystemSetup for the HytcCore -->
+	<bean id="acceleratorCoreSystemSetup" class="com.epam.hytc.core.setup.CoreSystemSetup"
+	       parent="abstractCoreSystemSetup"/>
+
+	<!-- Solr field value providers -->
+
+	<bean id="volumeAwareProductPriceValueProvider" class="com.epam.hytc.core.search.solrfacetsearch.provider.impl.VolumeAwareProductPriceValueProvider"  parent="abstractPropertyFieldValueProvider">
+        <property name="fieldNameProvider" ref="solrFieldNameProvider"/>
+        <property name="priceService" ref="priceService"/>
+        <property name="commonI18NService" ref="commonI18NService"/>
+        <property name="sessionService" ref="sessionService"/>
+        <property name="userService" ref="userService"/>
+        <property name="priceComparator" ref="volumePriceComparator"/>
+        <property name="catalogVersionService" ref="catalogVersionService"/>
+    </bean>
+
+    <bean id="volumePriceComparator" class="com.epam.hytc.core.comparators.VolumeAwarePriceInformationComparator" scope="singleton"/>
+
+    <bean id="productVolumePricesProvider" class="com.epam.hytc.core.search.solrfacetsearch.provider.impl.ProductVolumePricesProvider"  parent="abstractPropertyFieldValueProvider">
+        <property name="fieldNameProvider" ref="solrFieldNameProvider"/>
+        <property name="priceService" ref="priceService"/>
+    </bean>
+
+	<bean id="electronicsCategorySource" parent="abstractCategorySource">
+		<property name="rootCategory" value="1"/>
+		<!-- '1' is the root icecat category -->
+	</bean>
+	<bean id="electronicsBrandCategorySource" parent="abstractCategorySource">
+		<property name="rootCategory" value="brands"/>
+		<!-- 'brands' is the root of the brands hierarchy -->
+	</bean>
+
+	<bean id="abstractCategoryCodeValueProvider" abstract="true"
+	      class="de.hybris.platform.commerceservices.search.solrfacetsearch.provider.impl.CategoryCodeValueProvider"
+	      parent="abstractPropertyFieldValueProvider" >
+		<property name="fieldNameProvider" ref="solrFieldNameProvider"/>
+		<property name="commonI18NService" ref="commonI18NService"/>
+	</bean>
+	<bean id="abstractCategoryNameValueProvider" abstract="true"
+	      class="de.hybris.platform.commerceservices.search.solrfacetsearch.provider.impl.CategoryNameValueProvider"
+	      parent="abstractPropertyFieldValueProvider" >
+		<property name="fieldNameProvider" ref="solrFieldNameProvider"/>
+		<property name="commonI18NService" ref="commonI18NService"/>
+	</bean>
+
+	<bean id="electronicsCategoryCodeValueProvider" parent="abstractCategoryCodeValueProvider">
+		<property name="categorySource" ref="electronicsCategorySource"/>
+	</bean>
+	<bean id="electronicsBrandCategoryCodeValueProvider" parent="abstractCategoryCodeValueProvider">
+		<property name="categorySource" ref="electronicsBrandCategorySource"/>
+	</bean>
+	<bean id="electronicsCategoryNameValueProvider" parent="abstractCategoryNameValueProvider">
+		<property name="categorySource" ref="electronicsCategorySource"/>
+	</bean>
+	<bean id="electronicsBrandCategoryNameValueProvider" parent="abstractCategoryNameValueProvider">
+		<property name="categorySource" ref="electronicsBrandCategorySource"/>
+	</bean>
+
+	<bean id="image515ValueProvider" parent="abstractImageValueProvider" >
+		<property name="mediaFormat" value="515Wx515H"/>
+	</bean>
+	<bean id="image300ValueProvider" parent="abstractImageValueProvider" >
+		<property name="mediaFormat" value="300Wx300H"/>
+	</bean>
+	<bean id="image96ValueProvider" parent="abstractImageValueProvider" >
+		<property name="mediaFormat" value="96Wx96H"/>
+	</bean>
+	<bean id="image65ValueProvider" parent="abstractImageValueProvider" >
+		<property name="mediaFormat" value="65Wx65H"/>
+	</bean>
+	<bean id="image30ValueProvider" parent="abstractImageValueProvider" >
+		<property name="mediaFormat" value="30Wx30H"/>
+	</bean>
+
+	<bean id="productUrlValueProvider"
+	      class="de.hybris.platform.commerceservices.search.solrfacetsearch.provider.impl.ProductUrlValueProvider"
+	      parent="abstractPropertyFieldValueProvider" >
+		<property name="urlResolver" ref="productModelUrlResolver"/>
+		<property name="fieldNameProvider" ref="solrFieldNameProvider"/>
+		<property name="i18nService" ref="i18nService"/>
+		<property name="commonI18NService" ref="commonI18NService"/>
+	</bean>
+
+	<bean id="promotionCodeValueProvider"
+	      class="de.hybris.platform.commerceservices.search.solrfacetsearch.provider.impl.PromotionCodeValueProvider"
+	      parent="abstractPropertyFieldValueProvider" >
+		<property name="promotionsService" ref="promotionsService"/>
+		<property name="fieldNameProvider" ref="solrFieldNameProvider"/>
+	</bean>
+
+	<bean id="promotionImageValueProvider"
+	      class="de.hybris.platform.commerceservices.search.solrfacetsearch.provider.impl.PrimaryPromotionImageValueProvider"
+	      parent="abstractPropertyFieldValueProvider" >
+		<property name="promotionsService" ref="promotionsService"/>
+		<property name="fieldNameProvider" ref="solrFieldNameProvider"/>
+	</bean>
+
+	<bean id="electronicsPointOfServiceFacetDisplayNameProvider"
+	      class="com.epam.hytc.core.search.solrfacetsearch.provider.impl.PointOfServiceFacetDisplayNameProvider"
+	      >
+		<property name="pointOfServiceService" ref="pointOfServiceService"/>
+	</bean>
+
+	<bean id="productWithPromotionResolver" class="com.epam.hytc.core.search.solrfacetsearch.provider.impl.ProductWithPromotionResolver" parent="abstractValueResolver"/>
+
+	<!--
+		Event listeners are singletons, therefore the dependency for a bean in tenant-scope
+		must be configured with a lookup method.
+	-->
+	<bean id="orderCancelledEventListener"
+	      class="com.epam.hytc.core.event.OrderCancelledEventListener" parent="abstractAcceleratorSiteEventListener">
+		<property name="modelService" ref="modelService"/>
+		<property name="businessProcessService" ref="businessProcessService"/>
+	</bean>
+	<bean id="orderRefundEventListener"
+	      class="com.epam.hytc.core.event.OrderRefundEventListener" parent="abstractAcceleratorSiteEventListener">
+		<property name="modelService" ref="modelService"/>
+		<property name="businessProcessService" ref="businessProcessService"/>
+	</bean>
+	<bean id="customerRegistrationEventListener"
+	      class="com.epam.hytc.core.event.RegistrationEventListener" parent="abstractAcceleratorSiteEventListener">
+		<property name="modelService" ref="modelService"/>
+		<property name="businessProcessService" ref="businessProcessService"/>
+	</bean>
+	<bean id="forgottenPasswordEventListener"
+	      class="com.epam.hytc.core.event.ForgottenPasswordEventListener" parent="abstractAcceleratorSiteEventListener">
+		<property name="modelService" ref="modelService"/>
+		<property name="businessProcessService" ref="businessProcessService"/>
+	</bean>
+	<bean id="submitOrderEventListener" class="com.epam.hytc.core.event.SubmitOrderEventListener" parent="abstractAcceleratorSiteEventListener">
+		<property name="businessProcessService" ref="businessProcessService"/>
+		<property name="modelService" ref="modelService"/>
+		<property name="baseStoreService" ref="baseStoreService"/>
+	</bean>
+	<bean id="orderConfirmationEventListener"
+	      class="com.epam.hytc.core.event.OrderConfirmationEventListener" parent="abstractAcceleratorSiteEventListener">
+		<property name="modelService" ref="modelService"/>
+		<property name="businessProcessService" ref="businessProcessService"/>
+	</bean>
+	<bean id="sendDeliveryMessageEventListener"
+	      class="com.epam.hytc.core.event.SendDeliveryMessageEventListener" parent="abstractAcceleratorSiteEventListener">
+		<property name="modelService" ref="modelService"/>
+		<property name="businessProcessService" ref="businessProcessService"/>
+	</bean>
+	<bean id="sendReadyForPickupMessageEventListener"
+	      class="com.epam.hytc.core.event.SendReadyForPickupMessageEventListener" parent="abstractAcceleratorSiteEventListener">
+		<property name="modelService" ref="modelService"/>
+		<property name="businessProcessService" ref="businessProcessService"/>
+	</bean>
+	<bean id="sendOrderPartiallyCanceledMessageEventListener"
+	      class="com.epam.hytc.core.event.SendOrderPartiallyCanceledMessageEventListener" parent="abstractAcceleratorSiteEventListener">
+		<property name="modelService" ref="modelService"/>
+		<property name="businessProcessService" ref="businessProcessService"/>
+	</bean>
+	<bean id="sendOrderPartiallyRefundedMessageEventListener"
+	      class="com.epam.hytc.core.event.SendOrderPartiallyRefundedMessageEventListener" parent="abstractAcceleratorSiteEventListener">
+		<property name="modelService" ref="modelService"/>
+		<property name="businessProcessService" ref="businessProcessService"/>
+	</bean>
+	<bean id="sendNotPickedUpConsignmentCanceledMessageEventListener"
+	      class="com.epam.hytc.core.event.SendNotPickedUpConsignmentCanceledMessageEventListener" parent="abstractAcceleratorSiteEventListener">
+		<property name="modelService" ref="modelService"/>
+		<property name="businessProcessService" ref="businessProcessService"/>
+	</bean>
+	<bean id="orderCompletedEventListener" class="com.epam.hytc.core.event.OrderCompletedEventListener" parent="abstractAcceleratorSiteEventListener">
+		<property name="modelService" ref="modelService"/>
+		<property name="businessProcessService" ref="businessProcessService"/>
+	</bean>
+
+	<!-- Process resources definition -->
+
+	<bean id="customerRegistrationEmailProcessDefinitionResource"
+	      class="de.hybris.platform.processengine.definition.ProcessDefinitionResource" >
+		<property name="resource" value="classpath:/hytccore/processes/customerRegistrationEmailProcess.xml"/>
+	</bean>
+	<bean id="forgottenPasswordEmailProcessDefinitionResource"
+	      class="de.hybris.platform.processengine.definition.ProcessDefinitionResource" >
+		<property name="resource" value="classpath:/hytccore/processes/forgottenPasswordEmailProcess.xml"/>
+	</bean>
+	<bean id="orderConfirmationEmailProcessDefinitionResource"
+	      class="de.hybris.platform.processengine.definition.ProcessDefinitionResource" >
+		<property name="resource" value="classpath:/hytccore/processes/orderConfirmationEmailProcess.xml"/>
+	</bean>
+	<bean id="sendDeliveryEmailProcessDefinitionResource"
+	      class="de.hybris.platform.processengine.definition.ProcessDefinitionResource" >
+		<property name="resource" value="classpath:/hytccore/processes/sendDeliveryEmailProcess.xml"/>
+	</bean>
+	<bean id="sendReadyForPickupEmailProcessDefinitionResource"
+	      class="de.hybris.platform.processengine.definition.ProcessDefinitionResource" >
+		<property name="resource" value="classpath:/hytccore/processes/sendReadyForPickupEmailProcess.xml"/>
+	</bean>
+	<bean id="sendOrderCancelledEmailProcessDefinitionResource"
+	      class="de.hybris.platform.processengine.definition.ProcessDefinitionResource" >
+		<property name="resource" value="classpath:/hytccore/processes/sendOrderCancelledEmailProcess.xml"/>
+	</bean>
+	<bean id="sendOrderRefundEmailProcessDefinitionResource"
+	      class="de.hybris.platform.processengine.definition.ProcessDefinitionResource" >
+		<property name="resource" value="classpath:/hytccore/processes/sendOrderRefundEmailProcess.xml"/>
+	</bean>
+	<bean id="sendOrderPartiallyCanceledEmailProcessDefinitionResource"
+	      class="de.hybris.platform.processengine.definition.ProcessDefinitionResource" >
+		<property name="resource" value="classpath:/hytccore/processes/sendOrderPartiallyCanceledEmailProcess.xml"/>
+	</bean>
+	<bean id="sendOrderPartiallyRefundedEmailProcessDefinitionResource"
+	      class="de.hybris.platform.processengine.definition.ProcessDefinitionResource" >
+		<property name="resource" value="classpath:/hytccore/processes/sendOrderPartiallyRefundedEmailProcess.xml"/>
+	</bean>
+	<bean id="sendNotPickedUpConsignmentCanceledEmailProcessDefinitionResource"
+	      class="de.hybris.platform.processengine.definition.ProcessDefinitionResource" >
+		<property name="resource" value="classpath:/hytccore/processes/sendNotPickedUpConsignmentCanceledEmailProcess.xml"/>
+	</bean>
+
+	<!-- Actions -->
+	<bean id="abstractAction" class="de.hybris.platform.processengine.action.AbstractAction"
+	      abstract="true">
+		<property name="modelService" ref="modelService"/>
+		<property name="processParameterHelper" ref="processParameterHelper"/>
+	</bean>
+
+	<bean id="sendEmail" class="de.hybris.platform.acceleratorservices.process.email.actions.SendEmailAction"
+	       parent="abstractAction">
+		<property name="emailService" ref="emailService"/>
+	</bean>
+
+	<bean id="abstractGenerateEmailAction" class="de.hybris.platform.acceleratorservices.process.email.actions.GenerateEmailAction"
+	      parent="abstractAction" abstract="true">
+		<property name="modelService" ref="modelService"/>
+		<property name="cmsEmailPageService" ref="cmsEmailPageService"/>
+		<property name="contextResolutionStrategy" ref="processContextResolutionStrategy"/>
+		<property name="emailGenerationService" ref="emailGenerationService"/>
+	</bean>
+
+	<bean id="generateCustomerRegistrationEmail" parent="abstractGenerateEmailAction">
+		<property name="frontendTemplateName" value="CustomerRegistrationEmailTemplate"/>
+	</bean>
+
+	<bean id="generateForgottenPasswordEmail" parent="abstractGenerateEmailAction">
+		<property name="frontendTemplateName" value="ForgottenPasswordEmailTemplate"/>
+	</bean>
+
+	<bean id="generateOrderConfirmationEmail" parent="abstractGenerateEmailAction">
+		<property name="frontendTemplateName" value="OrderConfirmationEmailTemplate"/>
+	</bean>
+
+	<bean id="generateDeliverySentEmail" parent="abstractGenerateEmailAction">
+		<property name="frontendTemplateName" value="DeliverySentEmailTemplate"/>
+	</bean>
+
+	<bean id="generateReadyForPickupEmail" parent="abstractGenerateEmailAction">
+		<property name="frontendTemplateName" value="ReadyForPickupEmailTemplate"/>
+	</bean>
+
+	<bean id="generateOrderCancelledEmail" parent="abstractGenerateEmailAction">
+		<property name="frontendTemplateName" value="OrderCancelledEmailTemplate"/>
+	</bean>
+
+	<bean id="generateOrderRefundEmail" parent="abstractGenerateEmailAction">
+		<property name="frontendTemplateName" value="OrderRefundEmailTemplate"/>
+	</bean>
+
+	<bean id="generateOrderPartiallyCanceledEmail" parent="abstractGenerateEmailAction">
+		<property name="frontendTemplateName" value="OrderPartiallyCanceledEmailTemplate"/>
+	</bean>
+	<bean id="generateOrderPartiallyRefundedEmail" parent="abstractGenerateEmailAction">
+		<property name="frontendTemplateName" value="OrderPartiallyRefundedEmailTemplate"/>
+	</bean>
+	<bean id="generateNotPickedUpConsignmentCanceledEmail" parent="abstractGenerateEmailAction">
+		<property name="frontendTemplateName" value="NotPickedUpConsignmentCanceledEmailTemplate"/>
+	</bean>
+
+	<bean id="removeSentEmail"
+	      class="de.hybris.platform.acceleratorservices.process.email.actions.RemoveSentEmailAction"
+	      parent="abstractAction">
+		<property name="modelService" ref="modelService"/>
+	</bean>
+
+    <bean id="markQuoteNotificationAsSent"
+          class="com.epam.hytc.core.actions.quote.MarkQuoteNotificationAsSentAction"
+          parent="abstractAction" abstract="true">
+        <property name="quoteService" ref="quoteService"/>
+    </bean>
+
+	<!-- Simple Suggestion Service -->
+	<alias alias="simpleSuggestionService" name="defaultSimpleSuggestionService"/>
+	<bean id="defaultSimpleSuggestionService"
+	      class="com.epam.hytc.core.suggestion.impl.DefaultSimpleSuggestionService" >
+		<property name="simpleSuggestionDao" ref="simpleSuggestionDao"/>
+	</bean>
+	<alias alias="simpleSuggestionDao" name="defaultSimpleSuggestionDao"/>
+	<bean id="defaultSimpleSuggestionDao"
+	      class="com.epam.hytc.core.suggestion.dao.impl.DefaultSimpleSuggestionDao"
+	      parent="abstractItemDao" >
+		<property name="flexibleSearchService" ref="flexibleSearchService"/>
+	</bean>
+
+	<bean id="mccSiteUrlHelper" class="com.epam.hytc.core.util.MccSiteUrlHelper" >
+		<property name="siteChannelValidationStrategy" ref="siteChannelValidationStrategy"/>
+		<property name="siteBaseUrlResolutionService" ref="siteBaseUrlResolutionService"/>
+		<property name="cmsSiteService" ref="cmsSiteService"/>
+	</bean>
+
+	<bean id="sortDataHelper" class="com.epam.hytc.core.util.SortDataHelper"/>
+	<!-- Product Reference Lookup Strategies-->
+
+	<!-- Sales quote process actions -->
+
+	<!-- quote-->
+	<bean id="quoteBuyerSubmitEventListener" class="com.epam.hytc.core.event.QuoteBuyerSubmitEventListener"
+		  parent="abstractEventListener">
+		<property name="modelService" ref="modelService"/>
+		<property name="businessProcessService" ref="businessProcessService"/>
+	</bean>
+
+	<bean id="quoteSalesRepSubmitEventListener" class="com.epam.hytc.core.event.QuoteSalesRepSubmitEventListener"
+		  parent="abstractEventListener">
+		<property name="modelService" ref="modelService"/>
+		<property name="businessProcessService" ref="businessProcessService"/>
+	</bean>
+
+	<bean id="quoteSellerApprovalSubmitEventListener" class="com.epam.hytc.core.event.QuoteSellerApprovalSubmitEventListener"
+		  parent="abstractEventListener">
+		<property name="modelService" ref="modelService"/>
+		<property name="businessProcessService" ref="businessProcessService"/>
+	</bean>
+
+	<bean id="quoteBuyerOrderPlacedEventListener" class="com.epam.hytc.core.event.QuoteBuyerOrderPlacedEventListener"
+		  parent="abstractEventListener">
+		<property name="commerceQuoteService" ref="commerceQuoteService"/>
+		<property name="modelService" ref="modelService"/>
+	</bean>
+
+	<bean id="quoteToExpireSoonEventListener" class="com.epam.hytc.core.event.QuoteToExpireSoonEventListener"
+		  parent="abstractEventListener">
+		<property name="modelService" ref="modelService"/>
+		<property name="businessProcessService" ref="businessProcessService"/>
+	</bean>
+
+	<bean id="quoteExpiredEventListener" class="com.epam.hytc.core.event.QuoteExpiredEventListener"
+		  parent="abstractEventListener">
+		<property name="modelService" ref="modelService"/>
+		<property name="businessProcessService" ref="businessProcessService"/>
+	</bean>
+
+	<bean id="quoteCancelEventListener" class="com.epam.hytc.core.event.QuoteCancelEventListener"
+		  parent="abstractEventListener">
+		<property name="modelService" ref="modelService"/>
+		<property name="businessProcessService" ref="businessProcessService"/>
+	</bean>
+
+	<bean id="quoteBuyerProcessDefinitionResource"
+		  class="de.hybris.platform.processengine.definition.ProcessDefinitionResource" >
+		<property name="resource" value="classpath:/hytccore/processes/quote/quote-buyer-process.xml"/>
+	</bean>
+
+	<bean id="quoteSalesRepProcessDefinitionResource"
+		  class="de.hybris.platform.processengine.definition.ProcessDefinitionResource" >
+		<property name="resource" value="classpath:/hytccore/processes/quote/quote-salesrep-process.xml"/>
+	</bean>
+
+
+	<bean id="quoteSellerApprovalProcessDefinitionResource"
+		  class="de.hybris.platform.processengine.definition.ProcessDefinitionResource" >
+		<property name="resource" value="classpath:/hytccore/processes/quote/quote-seller-approval-process.xml"/>
+	</bean>
+
+	<bean id="quotePostCancellationProcessDefinitionResource"
+		  class="de.hybris.platform.processengine.definition.ProcessDefinitionResource" >
+		<property name="resource" value="classpath:/hytccore/processes/quote/quote-post-cancellation-process.xml"/>
+	</bean>
+
+	<bean id="quoteToExpireSoonProcessDefinitionResource"
+		  class="de.hybris.platform.processengine.definition.ProcessDefinitionResource" >
+		<property name="resource" value="classpath:/hytccore/processes/quote/quote-to-expire-soon-email-process.xml"/>
+	</bean>
+
+	<bean id="quoteExpiredProcessDefinitionResource"
+		  class="de.hybris.platform.processengine.definition.ProcessDefinitionResource" >
+		<property name="resource" value="classpath:/hytccore/processes/quote/quote-expired-email-process.xml"/>
+	</bean>
+
+	<!-- Quotes email notification jobs -->
+	<bean id="quoteToExpireSoonJobPerformable"
+		  class="com.epam.hytc.core.job.QuoteToExpireSoonJobPerformable"
+		  parent="abstractJobPerformable">
+		<property name="supportedQuoteStatuses">
+			<set value-type="de.hybris.platform.core.enums.QuoteState">
+				<value>BUYER_OFFER</value>
+			</set>
+		</property>
+		<property name="commerceQuoteDao" ref="commerceQuoteDao"/>
+		<property name="eventService" ref="eventService" />
+		<property name="configurationService" ref="configurationService" />
+		<property name="timeService" ref="timeService" />
+	</bean>
+
+	<bean id="quoteExpiredJobPerformable"
+		  class="com.epam.hytc.core.job.QuoteExpiredJobPerformable"
+		  parent="abstractJobPerformable">
+		<property name="supportedQuoteStatuses">
+			<set value-type="de.hybris.platform.core.enums.QuoteState">
+				<value>BUYER_OFFER</value>
+			</set>
+		</property>
+		<property name="commerceQuoteDao" ref="commerceQuoteDao"/>
+		<property name="eventService" ref="eventService" />
+		<property name="timeService" ref="timeService" />
+	</bean>
+
+	<import resource="/hytccore/processes/quote/quote-buyer-process-spring.xml"/>
+	<import resource="/hytccore/processes/quote/quote-salesrep-process-spring.xml"/>
+	<import resource="/hytccore/processes/quote/quote-seller-approval-process-spring.xml"/>
+
+	<import resource="/hytccore/processes/quote/quote-to-expire-soon-email-process-spring.xml"/>
+	<import resource="/hytccore/processes/quote/quote-expired-email-process-spring.xml"/>
+
+	<import resource="/hytccore/processes/quote/quote-post-cancellation-process-spring.xml"/>
+
+	<!-- Customer cleanup -->
+	<alias name="defaultCustomerCleanupRelatedObjectsAction" alias="customerCleanupRelatedObjectsAction"/>
+	<bean id="defaultCustomerCleanupRelatedObjectsAction" class="com.epam.hytc.core.retention.impl.DefaultCustomerCleanupRelatedObjectsAction" parent="abstractExtensibleRemoveCleanupAction">
+		<property name="itemCleanupHooks" ref="customerCleanupHooks"/>
+	</bean>
+
+	<!-- Cleanup the customers not owning any order currently and the current date has past deactivation date+retention date. Also removes customers audit records. -->
+	<alias name="defaultCustomerNotOwningOrdersRemoveCleanupAction" alias="customerNotOwningOrdersRemoveCleanupAction"/>
+	<bean id="defaultCustomerNotOwningOrdersRemoveCleanupAction" class="de.hybris.platform.retention.impl.DefaultExtensibleRemoveCleanupAction" parent="abstractExtensibleRemoveCleanupAction">
+		<property name="itemCleanupHooks" ref="customerCleanupHooks"/>
+	</bean>
+
+	<!-- Order cleanup -->
+	<!-- Cleanup the order related objects and then remove order and its audit records. -->
+	<alias name="defaultOrderRemoveCleanupAction" alias="orderRemoveCleanupAction"/>
+	<bean id="defaultOrderRemoveCleanupAction" class="de.hybris.platform.retention.impl.DefaultExtensibleRemoveCleanupAction" parent="abstractExtensibleRemoveCleanupAction">
+		<property name="itemCleanupHooks" ref="orderCleanupHooks"/>
+	</bean>
+
+	<!-- CsTicket Remove action -->
+	<alias name="defaultCSTicketRemoveCleanupAction" alias="csTicketRemoveCleanupAction"/>
+	<bean id="defaultCSTicketRemoveCleanupAction" class="de.hybris.platform.retention.impl.DefaultExtensibleRemoveCleanupAction" parent="abstractExtensibleRemoveCleanupAction">
+		<property name="itemCleanupHooks" ref="csTicketCleanupHooks"/>
+	</bean>
+
+	<!-- CsTicket Stagnation action -->
+	<alias name="defaultCSTicketStagnationAction" alias="csTicketStagnationAction"/>
+	<bean id="defaultCSTicketStagnationAction" class="com.epam.hytc.core.retention.impl.DefaultCSTicketStagnationAction" parent="abstractExtensibleRemoveCleanupAction">
+		<property name="itemCleanupHooks" ref="csTicketRetentionHooks"/>
+		<property name="ticketBusinessService" ref="ticketBusinessService"/>
+	</bean>
+
+    <!-- Bonus system implementation START-->
+	<alias name="defaultBonusAccountService" alias="bonusAccountService"/>
+	<bean id="defaultBonusAccountService" class="com.epam.hytc.core.services.impl.DefaultBonusAccountService"/>
+
+	<alias name="defaultBonusHistoryEntryService" alias="bonusHistoryEntryService"/>
+	<bean id="defaultBonusHistoryEntryService" class="com.epam.hytc.core.services.impl.DefaultBonusHistoryEntryService"/>
+
+	<alias name="defaultPaginatedGenericDao" alias="bonusHistoryEntryDao"/>
+	<bean name="defaultPaginatedGenericDao" class="de.hybris.platform.servicelayer.search.paginated.dao.impl.DefaultPaginatedGenericDao">
+		<constructor-arg value="BonusHistoryEntry"/>
+		<property name="paginatedFlexibleSearchService" ref="paginatedFlexibleSearchService"/>
+	</bean>
+
+    <bean id="prepareBonusHistoryInterceptor"
+          class="com.epam.hytc.core.interceptors.PrepareBonusHistoryInterceptor">
+    </bean>
+
+    <bean id="prepareBonusHistoryInterceptorMapping" class="de.hybris.platform.servicelayer.interceptor.impl.InterceptorMapping">
+        <property ref="prepareBonusHistoryInterceptor" name="interceptor"/>
+        <property name="typeCode" value="BonusHistoryEntry"/>
+    </bean>
+    <!-- Bonus system implementation END-->
+	<!-- Recently viewed products -->
+	<bean id="recentProductDao" class="com.epam.hytc.core.dao.impl.DefaultRecentProductDao">
+		<constructor-arg value="RecentProduct"/>
+	</bean>
+
+	<bean id="recentProductService" class="com.epam.hytc.core.services.impl.DefaultRecentProductService"/>
+
+	<alias name="defaultHytcBonusPlaceOrderMethodHook" alias="hytcBonusPlaceOrderMethodHook"/>
+	<bean id="defaultHytcBonusPlaceOrderMethodHook" class="com.epam.hytc.core.hook.HytcBonusPlaceOrderMethodHook"/>
+
+	<bean id="hytcBonusPlaceOrderMethodHookMergeDirective" depends-on="commercePlaceOrderMethodHooks" parent="listMergeDirective" >
+		<property name="add" ref="hytcBonusPlaceOrderMethodHook" />
+	</bean>
+
+	<!-- Impex loader -->
+	<alias name="defaultHytcReleaseImpexDao" alias="releaseImpexDao"/>
+	<bean name="defaultHytcReleaseImpexDao" class="com.epam.hytc.core.dao.impl.DefaultHytcReleaseImpexDao">
+		<constructor-arg value="ReleaseImpex"/>
+	</bean>
+
+	<alias name="defaultReleaseImpexService" alias="releaseImpexService"/>
+	<bean name="defaultReleaseImpexService" class="com.epam.hytc.core.services.impl.DefaultHytcReleaseImpexService"/>
+
+	<alias name="defaultValidateReleaseImpexService" alias="validateReleaseImpexService"/>
+	<bean name="defaultValidateReleaseImpexService" class="com.epam.hytc.core.services.impl.DefaultHytcValidateReleaseImpexService"/>
+
+	<alias name="defaultHytcSetupImpexService" alias="setupImpexService"/>
+	<bean id="defaultHytcSetupImpexService" class="com.epam.hytc.core.services.impl.DefaultHytcSetupImpexService"
+		  parent="defaultSetupImpexService"/>
+	<bean id="hytcConfigurationService" class="com.epam.hytc.core.services.impl.DefaultHytcConfigurationService"/>
+
+    <bean id="returningCustomerTokenService" class="com.epam.hytc.core.services.impl.DefaultReturningCustomerTokenService" />
+
+	<bean id="returningCustomerTokenDao"
+		  class="com.epam.hytc.core.dao.impl.DefaultReturningCustomerTokenDao" />
+
+	<bean id="userSuccessAuthenticationListener" class="com.epam.hytc.core.event.UserSuccessAuthenticationListener"/>
+
+	<alias name="defaultHytcUserService" alias="userService"/>
+	<bean id="defaultHytcUserService" class="com.epam.hytc.core.services.impl.DefaultHytcUserService" parent="defaultUserService"/>
+
+	<bean depends-on="processContextResolutionStrategyMap" parent="mapMergeDirective">
+		<property name="key">
+			<value type="java.lang.Class">de.hybris.platform.processengine.model.BusinessProcessModel</value>
+		</property>
+		<property name="value" ref="storeFrontProcessContextStrategy"/>
+	</bean>
+
+	<bean id="customerLevelConfigurationDao"
+		  class="com.epam.hytc.core.dao.impl.DefaultCustomerLevelConfigurationDao"/>
+
+	<bean id="hytcCustomerService"
+		  class="com.epam.hytc.core.services.impl.DefaultHytcCustomerService"/>
+
+	<bean id="customerLevelConfigurationService" class="com.epam.hytc.core.services.impl.DefaultCustomerLevelConfigurationService"/>
+
+</beans>

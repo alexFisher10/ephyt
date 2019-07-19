@@ -1,0 +1,11 @@
+INSERT_UPDATE Language; isocode[unique = true]; active;
+                      ; de                    ; true  ;
+                      ; en                    ; true  ;
+                      ; ru                    ; true  ;
+
+INSERT_UPDATE  BonusAccount; accountLevel(CustomerLevel.Code)[unique = true]; &owner
+                           ; GOLD                                           ; firstcustomer
+
+INSERT_UPDATE Customer; uid[unique = true]; bonusAccount(&owner);
+                      ; firstcustomeruid  ; firstcustomer       ;
+

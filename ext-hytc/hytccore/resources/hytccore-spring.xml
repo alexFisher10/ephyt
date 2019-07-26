@@ -552,4 +552,8 @@
 
 	<bean id="customerLevelConfigurationService" class="com.epam.hytc.core.services.impl.DefaultCustomerLevelConfigurationService"/>
 
+	<bean id="customerReferralCodeDao" class="com.epam.hytc.core.dao.impl.DefaultCustomerReferralCodeDao"/>
+
+	<bean id="referralDataService" class="com.epam.hytc.core.services.impl.DefaultReferralDataService"/>
+
 </beans>

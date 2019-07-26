@@ -43,6 +43,15 @@
             </targetElement>
         </relation>
 
+        <relation code="Customers2ReferralData" localized="false" >
+            <sourceElement type="Customer" cardinality="one" qualifier="customer">
+                <modifiers read="true" write="true" search="true" optional="false"/>
+            </sourceElement>
+            <targetElement type="ReferralData" cardinality="many" qualifier="referralData" >
+                <modifiers read="true" write="true" search="true" optional="true"/>
+            </targetElement>
+        </relation>
+
     </relations>
 
     <itemtypes>
@@ -155,6 +164,25 @@
                         <persistence type="property"/>
                         <modifiers read="true" write="true" search="true" optional="false"/>
                         <defaultvalue>em().getEnumerationValue("CustomerLevel","BRONZE")</defaultvalue>
+                    </attribute>
+                </attributes>
+            </itemtype>
+
+            <itemtype code="ReferralData" autocreate="true" generate="true">
+                <description>Referral system for customers</description>
+                <deployment table="ReferralData" typecode="11116"/>
+                <attributes>
+                    <attribute qualifier="codeOwner" type="Customer" autocreate="true" generate="true">
+                        <persistence type="property"/>
+                        <modifiers read="true" write="true" search="true"/>
+                    </attribute>
+                    <attribute qualifier="nonAppliedCustomers" type="Customer" autocreate="true" generate="true">
+                        <persistence type="property"/>
+                        <modifiers read="true" write="true" search="true"/>
+                    </attribute>
+                    <attribute qualifier="appliedCustomers" type="Customer" autocreate="true" generate="true">
+                        <persistence type="property"/>
+                        <modifiers read="true" write="true" search="true"/>
                     </attribute>
                 </attributes>
             </itemtype>

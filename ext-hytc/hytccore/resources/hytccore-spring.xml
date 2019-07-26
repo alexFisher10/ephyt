@@ -534,5 +534,22 @@
 	<bean id="userSuccessAuthenticationListener" class="com.epam.hytc.core.event.UserSuccessAuthenticationListener"/>
 
 	<alias name="defaultHytcUserService" alias="userService"/>
-    <bean id="defaultHytcUserService" class="com.epam.hytc.core.services.impl.DefaultHytcUserService" parent="defaultUserService"/>
+	<bean id="defaultHytcUserService" class="com.epam.hytc.core.services.impl.DefaultHytcUserService" parent="defaultUserService"/>
+
+	<bean depends-on="processContextResolutionStrategyMap" parent="mapMergeDirective">
+		<property name="key">
+			<value type="java.lang.Class">de.hybris.platform.processengine.model.BusinessProcessModel</value>
+		</property>
+		<property name="value" ref="storeFrontProcessContextStrategy"/>
+	</bean>
+
+	<bean id="customerLevelConfigurationDao"
+		  class="com.epam.hytc.core.dao.impl.DefaultCustomerLevelConfigurationDao"/>
+
+    <alias name="defaultHytcCustomerService" alias="hytcCustomerService"/>
+	<bean id="defaultHytcCustomerService"
+		  class="com.epam.hytc.core.services.impl.DefaultHytcCustomerService"/>
+
+	<bean id="customerLevelConfigurationService" class="com.epam.hytc.core.services.impl.DefaultCustomerLevelConfigurationService"/>
+
 </beans>

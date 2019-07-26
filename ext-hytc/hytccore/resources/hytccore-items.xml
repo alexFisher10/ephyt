@@ -23,6 +23,12 @@
             <value code="SUCCESS"/>
         </enumtype>
 
+        <enumtype code="CustomerLevel">
+            <value code="BRONZE"/>
+            <value code="SILVER"/>
+            <value code="GOLD"/>
+        </enumtype>
+
     </enumtypes>
 
     <relations>
@@ -47,6 +53,15 @@
                 <attribute qualifier="bonusAccount" type="BonusAccount">
                     <modifiers read="true" write="true" search="true" optional="true" partof="true"/>
                     <persistence type="property"/>
+                </attribute>
+                <attribute qualifier="totalSpent" type="java.math.BigDecimal">
+                    <modifiers read="true" write="true" search="true" optional="false"/>
+                    <persistence type="property"/>
+                    <defaultvalue>java.math.BigDecimal.ZERO</defaultvalue>
+                </attribute>
+                <attribute qualifier="referralCode" type="java.lang.String">
+                    <persistence type="property"/>
+                    <modifiers read="true" write="true" search="true"/>
                 </attribute>
             </attributes>
         </itemtype>
@@ -134,6 +149,34 @@
                         <persistence type="property"/>
                         <modifiers read="true" write="true" search="true" optional="false"/>
                         <defaultvalue>Double.valueOf(0.0d)</defaultvalue>
+                    </attribute>
+                    <attribute qualifier="accountLevel" type="CustomerLevel" autocreate="true" generate="true">
+                        <description>Level of Customer bonus account</description>
+                        <persistence type="property"/>
+                        <modifiers read="true" write="true" search="true" optional="false"/>
+                        <defaultvalue>em().getEnumerationValue("CustomerLevel","BRONZE")</defaultvalue>
+                    </attribute>
+                </attributes>
+            </itemtype>
+
+            <itemtype code="CustomerLevelConfiguration" autocreate="true" generate="true">
+                <description>Bonus system customer level configuration</description>
+                <deployment table="CustomerLevelConfigs" typecode="11115"/>
+                <attributes>
+                    <attribute qualifier="customerLevelType" type="CustomerLevel" autocreate="true" generate="true">
+                        <persistence type="property"/>
+                        <modifiers read="true" write="true" search="true" optional="false"/>
+                    </attribute>
+                    <attribute qualifier="minSpend" type="java.math.BigDecimal" autocreate="true" generate="true">
+                        <description>Min spent amount to reach level</description>
+                        <persistence type="property"/>
+                        <modifiers read="true" write="true" search="true" optional="false"/>
+                        <defaultvalue>java.math.BigDecimal.ZERO</defaultvalue>
+                    </attribute>
+                    <attribute qualifier="bonusMultiplier" type="double" autocreate="true" generate="true">
+                        <persistence type="property"/>
+                        <modifiers read="true" write="true" search="true" optional="false"/>
+                        <defaultvalue>Double.valueOf(1.0d)</defaultvalue>
                     </attribute>
                 </attributes>
             </itemtype>
